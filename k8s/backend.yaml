@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: taskapp-backend
+  namespace: taskapp
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: taskapp-backend
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  template:
+    metadata:
+      labels:
+        app: taskapp-backend
+    spec:
+      containers:
+      - name: backend
+        # Ensure you replace fantoforever with your actual dockerhub registry if you change it
+        image: fantoforever/taskapp-backend:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8000
+        env:
+        - name: DATABASE_URL
+          value: "postgresql://taskuser:TaskPassword2024!@postgres:5432/taskdb"
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: taskapp-secrets
+              key: JWT_SECRET
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "526Mi"
+            cpu: "500m"
+        readinessProbe:
+          httpGet:
+            path: /api/health # Assuming backend has a health route, or tweak to /
+            port: 8000
+          initialDelaySeconds: 10
+          periodSeconds: 5
+        livenessProbe:
+          httpGet:
+            path: /api/health
+            port: 8000
+          initialDelaySeconds: 15
+          periodSeconds: 20
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: taskapp-backend
+  namespace: taskapp
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+    targetPort: 8000
+  selector:
+    app: taskapp-backend

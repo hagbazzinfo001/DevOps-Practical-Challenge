@@ -1,0 +1,101 @@
+# ==========================================
+# 🛑 SECRETS & CREDENTIALS (CRITICAL RULES)
+# ==========================================
+# Never commit raw passwords, tokens, or local environmental variables!
+*.env
+.env
+.env.production
+.env.local
+.env.development
+!*.env.example
+
+# Explicitly ignore the raw Kubernetes Secrets payload so it is never pushed to GitHub
+k8s/core-secrets.yaml
+k8s/*-secrets.yaml
+
+# AWS Keys & RSA Certs
+*.pem
+*.key
+credentials.json
+aws_credentials/
+
+# ==========================================
+# 🛑 TERRAFORM HYGIENE
+# ==========================================
+# Exclude entire local Terraform state and provider caches
+.terraform/
+**/.terraform/*
+
+# Exclude Terraform state files globally (prevents remote state destruction and secret leaks!)
+*.tfstate
+*.tfstate.*
+crash.log
+crash.*.log
+
+# Exclude override files
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Exclude tfplan files
+*.tfplan
+
+# ==========================================
+# 🐍 PYTHON / BACKEND CACHE
+# ==========================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+venv/
+.venv/
+pip-log.txt
+
+# ==========================================
+# ⚛️ NODE.JS / FRONTEND BUILD CACHE
+# ==========================================
+node_modules/
+dist/
+build/
+.npm
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.eslintcache
+
+# ==========================================
+# 💻 IDE & OPERATING SYSTEM FILES
+# ==========================================
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+.vscode/
+.idea/
+*.swp
+*.swo
