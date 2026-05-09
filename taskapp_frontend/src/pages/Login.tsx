@@ -291,7 +291,7 @@ export function Login() {
                 </div>
                 <div className="text-center md:text-right">
                   <p className="text-xs text-gray-500">
-                    © 2026 TeamFlow • DevOps Engineering Program • Created by Oluwatobiloba (DevOps Engineer)
+                    © 2026 TeamFlow • DevOps Engineering Program • Created by Owolabi Agbabiaka (DevOps Engineer)
                   </p>
                 </div>
               </div>

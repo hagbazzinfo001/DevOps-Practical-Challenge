@@ -26,9 +26,26 @@ spec:
         ports:
         - containerPort: 8000
         env:
-        - name: DATABASE_URL
-          value: "postgresql://taskuser:TaskPassword2024!@postgres:5432/taskdb"
-        - name: JWT_SECRET
+        - name: DATABASE_HOST
+          value: "postgres"
+        - name: DATABASE_PORT
+          value: "5432"
+        - name: DATABASE_USER
+          valueFrom:
+            secretKeyRef:
+              name: taskapp-secrets
+              key: POSTGRES_USER
+        - name: DATABASE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: taskapp-secrets
+              key: POSTGRES_PASSWORD
+        - name: DATABASE_NAME
+          valueFrom:
+            secretKeyRef:
+              name: taskapp-secrets
+              key: POSTGRES_DB
+        - name: SECRET_KEY
           valueFrom:
             secretKeyRef:
               name: taskapp-secrets
