@@ -32,15 +32,15 @@ export function Landing() {
             <Rocket className="w-4 h-4" />
             <span className="text-sm font-medium">Supercharge Your Team's Productivity</span>
           </div>
-          
+
           <h1 className="text-5xl md:text-7xl font-bold mb-6">
             <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
               Team Task Manager
             </span>
           </h1>
-          
+
           <p className="text-xl text-gray-300 mb-10 max-w-2xl mx-auto">
-            Transform how your team collaborates with our intuitive Kanban-style board. 
+            Transform how your team collaborates with our intuitive Kanban-style board.
             Designed for modern teams who value efficiency, clarity, and seamless workflow.
           </p>
 
@@ -52,8 +52,8 @@ export function Landing() {
               <Zap className="w-5 h-5" />
               Get Started Free
             </Link>
-            <a 
-              href="#features" 
+            <a
+              href="#features"
               className="px-8 py-4 bg-gray-800/50 border border-gray-700 rounded-xl hover:bg-gray-800 transition-all duration-300 font-semibold text-lg"
             >
               Explore Features
@@ -257,7 +257,7 @@ export function Landing() {
               <p className="text-gray-400">Created by</p>
               <p className="text-xl font-bold">
                 <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-                  Oluwatobiloba Durodola.
+                  Owolabi Agbabiaka
                 </span>
               </p>
             </div>

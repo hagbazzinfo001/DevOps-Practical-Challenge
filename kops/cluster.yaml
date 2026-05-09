@@ -19,12 +19,6 @@ spec:
     - encryptedVolume: true
       instanceGroup: control-plane-us-east-1a
       name: a
-    - encryptedVolume: true
-      instanceGroup: control-plane-us-east-1b
-      name: b
-    - encryptedVolume: true
-      instanceGroup: control-plane-us-east-1c
-      name: c
     manager:
       backupRetentionDays: 90
     memoryRequest: 100Mi
@@ -34,12 +28,6 @@ spec:
     - encryptedVolume: true
       instanceGroup: control-plane-us-east-1a
       name: a
-    - encryptedVolume: true
-      instanceGroup: control-plane-us-east-1b
-      name: b
-    - encryptedVolume: true
-      instanceGroup: control-plane-us-east-1c
-      name: c
     manager:
       backupRetentionDays: 90
     memoryRequest: 100Mi
@@ -47,6 +35,23 @@ spec:
   iam:
     allowContainerRegistry: true
     legacy: false
+  additionalPolicies:
+    node: |
+      [
+        {
+          "Effect": "Allow",
+          "Action": [
+            "cloudwatch:PutMetricData",
+            "ec2:DescribeTags",
+            "logs:PutLogEvents",
+            "logs:DescribeLogStreams",
+            "logs:DescribeLogGroups",
+            "logs:CreateLogStream",
+            "logs:CreateLogGroup"
+          ],
+          "Resource": "*"
+        }
+      ]
   kubelet:
     anonymousAuth: false
   kubernetesApiAccess:
@@ -54,7 +59,7 @@ spec:
   - ::/0
   kubernetesVersion: 1.35.3
   networkCIDR: 10.0.0.0/16
-  networkID: vpc-09044840caf6cb906
+  networkID: vpc-0695255ee4dd684f5
   networking:
     calico: {}
   nonMasqueradeCIDR: 100.64.0.0/10
@@ -63,35 +68,25 @@ spec:
   - ::/0
   subnets:
   - cidr: 10.0.48.0/20
-    id: subnet-02f9523dac700e646
+    id: subnet-074262f6803e6d54c
     name: us-east-1a
     type: Private
     zone: us-east-1a
   - cidr: 10.0.64.0/20
-    id: subnet-04b6ea88ea87882a7
+    id: subnet-03c1d537b40aafa48
     name: us-east-1b
     type: Private
     zone: us-east-1b
-  - cidr: 10.0.80.0/20
-    id: subnet-0ab7b9cfa832f7522
-    name: us-east-1c
-    type: Private
-    zone: us-east-1c
   - cidr: 10.0.0.0/20
-    id: subnet-00678ede0deeb7dc1
+    id: subnet-04145513e08adfbf4
     name: utility-us-east-1a
     type: Utility
     zone: us-east-1a
   - cidr: 10.0.16.0/20
-    id: subnet-091c6fe9433729cf3
+    id: subnet-090e30bf154ce1798
     name: utility-us-east-1b
     type: Utility
     zone: us-east-1b
-  - cidr: 10.0.32.0/20
-    id: subnet-00b7c0418305aaec8
-    name: utility-us-east-1c
-    type: Utility
-    zone: us-east-1c
   topology:
     dns:
       type: None
@@ -112,40 +107,6 @@ spec:
   role: Master
   subnets:
   - us-east-1a
-
----
-
-apiVersion: kops.k8s.io/v1alpha2
-kind: InstanceGroup
-metadata:
-  labels:
-    kops.k8s.io/cluster: taskapp.fantoforever.com
-  name: control-plane-us-east-1b
-spec:
-  image: 099720109477/ubuntu/images/hvm-ssd-gp3/ubuntu-noble-24.04-amd64-server-20260218
-  machineType: t3.small
-  maxSize: 1
-  minSize: 1
-  role: Master
-  subnets:
-  - us-east-1b
-
----
-
-apiVersion: kops.k8s.io/v1alpha2
-kind: InstanceGroup
-metadata:
-  labels:
-    kops.k8s.io/cluster: taskapp.fantoforever.com
-  name: control-plane-us-east-1c
-spec:
-  image: 099720109477/ubuntu/images/hvm-ssd-gp3/ubuntu-noble-24.04-amd64-server-20260218
-  machineType: t3.small
-  maxSize: 1
-  minSize: 1
-  role: Master
-  subnets:
-  - us-east-1c
 
 ---
 
@@ -180,20 +141,3 @@ spec:
   role: Node
   subnets:
   - us-east-1b
-
----
-
-apiVersion: kops.k8s.io/v1alpha2
-kind: InstanceGroup
-metadata:
-  labels:
-    kops.k8s.io/cluster: taskapp.fantoforever.com
-  name: nodes-us-east-1c
-spec:
-  image: 099720109477/ubuntu/images/hvm-ssd-gp3/ubuntu-noble-24.04-amd64-server-20260218
-  machineType: t3.small
-  maxSize: 1
-  minSize: 1
-  role: Node
-  subnets:
-  - us-east-1c
