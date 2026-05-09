@@ -66,4 +66,5 @@ jobs:
           
           # Deploy manifests
           kubectl apply -f k8s/
+          kubectl apply -f k8s/monitoring/namespace.yaml
           kubectl apply -f k8s/monitoring/
