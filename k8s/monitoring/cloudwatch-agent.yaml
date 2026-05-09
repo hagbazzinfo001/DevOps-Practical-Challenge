@@ -80,6 +80,7 @@ spec:
       labels:
         name: cloudwatch-agent
     spec:
+      hostNetwork: true
       containers:
         - name: cloudwatch-agent
           image: amazon/cloudwatch-agent:latest

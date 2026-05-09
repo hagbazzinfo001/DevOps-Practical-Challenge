@@ -104,6 +104,7 @@ spec:
       labels:
         name: fluent-bit
     spec:
+      hostNetwork: true
       serviceAccountName: fluent-bit
       containers:
         - name: fluent-bit
