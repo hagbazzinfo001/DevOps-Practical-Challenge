@@ -93,13 +93,11 @@ spec:
         stage('Deploy to Kubernetes') {
             steps {
                 container('kubectl') {
-                    withCredentials([file(credentialsId: "${KUBECONFIG_CRED_ID}", variable: 'KUBECONFIG_FILE')]) {
-                        sh "kubectl --kubeconfig \$KUBECONFIG_FILE apply -f k8s/"
-                        sh "kubectl --kubeconfig \$KUBECONFIG_FILE apply -f k8s/monitoring/namespace.yaml"
-                        sh "kubectl --kubeconfig \$KUBECONFIG_FILE apply -f k8s/monitoring/"
-                        sh "kubectl --kubeconfig \$KUBECONFIG_FILE rollout restart deployment taskapp-frontend -n taskapp"
-                        sh "kubectl --kubeconfig \$KUBECONFIG_FILE rollout restart deployment taskapp-backend -n taskapp"
-                    }
+                    sh "kubectl apply -f k8s/"
+                    sh "kubectl apply -f k8s/monitoring/namespace.yaml"
+                    sh "kubectl apply -f k8s/monitoring/"
+                    sh "kubectl rollout restart deployment taskapp-frontend -n taskapp"
+                    sh "kubectl rollout restart deployment taskapp-backend -n taskapp"
                 }
             }
         }
