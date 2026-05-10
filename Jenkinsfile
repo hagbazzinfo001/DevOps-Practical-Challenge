@@ -92,12 +92,17 @@ spec:
 
         stage('Deploy to Kubernetes') {
             steps {
-                container('kubectl') {
-                    sh "kubectl apply -f k8s/"
-                    sh "kubectl apply -f k8s/monitoring/namespace.yaml"
-                    sh "kubectl apply -f k8s/monitoring/"
-                    sh "kubectl rollout restart deployment taskapp-frontend -n taskapp"
-                    sh "kubectl rollout restart deployment taskapp-backend -n taskapp"
+                container('docker') {
+                    sh '''
+                    apk add --no-cache curl
+                    curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+                    chmod +x kubectl
+                    ./kubectl apply -f k8s/
+                    ./kubectl apply -f k8s/monitoring/namespace.yaml
+                    ./kubectl apply -f k8s/monitoring/
+                    ./kubectl rollout restart deployment taskapp-frontend -n taskapp || true
+                    ./kubectl rollout restart deployment taskapp-backend -n taskapp || true
+                    '''
                 }
             }
         }
