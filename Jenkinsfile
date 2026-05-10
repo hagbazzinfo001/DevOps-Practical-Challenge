@@ -1,12 +1,43 @@
 pipeline {
-    agent any
+    agent {
+        kubernetes {
+            yaml '''
+apiVersion: v1
+kind: Pod
+spec:
+  containers:
+  - name: dind
+    image: docker:dind
+    securityContext:
+      privileged: true
+    env:
+    - name: DOCKER_TLS_CERTDIR
+      value: ""
+  - name: docker
+    image: docker:latest
+    command:
+    - sleep
+    args:
+    - 99d
+    env:
+    - name: DOCKER_HOST
+      value: tcp://localhost:2375
+  - name: kubectl
+    image: bitnami/kubectl:latest
+    command:
+    - sleep
+    args:
+    - 99d
+'''
+        }
+    }
 
     environment {
         DOCKER_REGISTRY = 'fantoforever'
         FRONTEND_IMAGE = "${DOCKER_REGISTRY}/taskapp-frontend"
         BACKEND_IMAGE = "${DOCKER_REGISTRY}/taskapp-backend"
         IMAGE_TAG = "build-${BUILD_NUMBER}"
-        KUBECONFIG_CRED_ID = 'kops-kubeconfig' // Assumes a Jenkins credential ID 'kops-kubeconfig' (Secret file) containing the kops kubeconfig
+        KUBECONFIG_CRED_ID = 'kops-kubeconfig'
     }
 
     stages {
@@ -18,23 +49,28 @@ pipeline {
         
         stage('Build Frontend') {
             steps {
-                dir('taskapp_frontend') {
-                    sh "docker build -t ${FRONTEND_IMAGE}:${IMAGE_TAG} -t ${FRONTEND_IMAGE}:latest ."
+                container('docker') {
+                    dir('taskapp_frontend') {
+                        // Wait for the dind daemon to fully start
+                        sh "while ! docker info >/dev/null 2>&1; do sleep 1; done"
+                        sh "docker build -t ${FRONTEND_IMAGE}:${IMAGE_TAG} -t ${FRONTEND_IMAGE}:latest ."
+                    }
                 }
             }
         }
         
         stage('Build Backend') {
             steps {
-                dir('taskapp_backend') {
-                    sh "docker build -t ${BACKEND_IMAGE}:${IMAGE_TAG} -t ${BACKEND_IMAGE}:latest ."
+                container('docker') {
+                    dir('taskapp_backend') {
+                        sh "docker build -t ${BACKEND_IMAGE}:${IMAGE_TAG} -t ${BACKEND_IMAGE}:latest ."
+                    }
                 }
             }
         }
 
         stage('Test') {
             steps {
-                // Placeholder for actual tests (e.g., npm test, pytest)
                 echo 'Running basic tests...'
                 sh 'echo "Tests passed!"'
             }
@@ -42,25 +78,28 @@ pipeline {
 
         stage('Push Images') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', passwordVariable: 'DOCKER_PASS', usernameVariable: 'DOCKER_USER')]) {
-                    sh "echo \$DOCKER_PASS | docker login -u \$DOCKER_USER --password-stdin"
-                    sh "docker push ${FRONTEND_IMAGE}:${IMAGE_TAG}"
-                    sh "docker push ${FRONTEND_IMAGE}:latest"
-                    sh "docker push ${BACKEND_IMAGE}:${IMAGE_TAG}"
-                    sh "docker push ${BACKEND_IMAGE}:latest"
+                container('docker') {
+                    withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', passwordVariable: 'DOCKER_PASS', usernameVariable: 'DOCKER_USER')]) {
+                        sh "echo \$DOCKER_PASS | docker login -u \$DOCKER_USER --password-stdin"
+                        sh "docker push ${FRONTEND_IMAGE}:${IMAGE_TAG}"
+                        sh "docker push ${FRONTEND_IMAGE}:latest"
+                        sh "docker push ${BACKEND_IMAGE}:${IMAGE_TAG}"
+                        sh "docker push ${BACKEND_IMAGE}:latest"
+                    }
                 }
             }
         }
 
         stage('Deploy to Kubernetes') {
             steps {
-                withCredentials([file(credentialsId: "${KUBECONFIG_CRED_ID}", variable: 'KUBECONFIG_FILE')]) {
-                    // We use the kubeconfig injected via credentials to apply manifests
-                    sh "kubectl --kubeconfig \$KUBECONFIG_FILE apply -f k8s/"
-                    sh "kubectl --kubeconfig \$KUBECONFIG_FILE apply -f k8s/monitoring/"
-                    // To force image update if using latest:
-                    // sh "kubectl --kubeconfig \$KUBECONFIG_FILE rollout restart deployment taskapp-frontend"
-                    // sh "kubectl --kubeconfig \$KUBECONFIG_FILE rollout restart deployment taskapp-backend"
+                container('kubectl') {
+                    withCredentials([file(credentialsId: "${KUBECONFIG_CRED_ID}", variable: 'KUBECONFIG_FILE')]) {
+                        sh "kubectl --kubeconfig \$KUBECONFIG_FILE apply -f k8s/"
+                        sh "kubectl --kubeconfig \$KUBECONFIG_FILE apply -f k8s/monitoring/namespace.yaml"
+                        sh "kubectl --kubeconfig \$KUBECONFIG_FILE apply -f k8s/monitoring/"
+                        sh "kubectl --kubeconfig \$KUBECONFIG_FILE rollout restart deployment taskapp-frontend -n taskapp"
+                        sh "kubectl --kubeconfig \$KUBECONFIG_FILE rollout restart deployment taskapp-backend -n taskapp"
+                    }
                 }
             }
         }
