@@ -245,11 +245,11 @@ export function Landing() {
             <div className="mb-4">
               <div className="flex items-center justify-center md:justify-end gap-2 mb-2">
                 <Award className="w-5 h-5 text-yellow-400" />
-                <span className="font-semibold">Academic Project</span>
+                <span className="font-semibold">Challenge Project</span>
               </div>
               <p className="text-gray-400">Developed as part of</p>
               <p className="text-lg font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-                Challenge
+                Damolak
               </p>
             </div>
 
