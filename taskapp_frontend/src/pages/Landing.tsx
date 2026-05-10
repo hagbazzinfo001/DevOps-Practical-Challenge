@@ -249,7 +249,7 @@ export function Landing() {
               </div>
               <p className="text-gray-400">Developed as part of</p>
               <p className="text-lg font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-                TS Academy
+                Challenge
               </p>
             </div>
 

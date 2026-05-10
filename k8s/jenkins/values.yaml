@@ -1,23 +1,28 @@
 # Helm values for Jenkins (jenkins/jenkins)
 controller:
   componentName: "jenkins-controller"
-  image: "jenkins/jenkins"
-  tag: "lts"
-  adminUser: "admin"
-  adminPassword: "admin_password" # Change this in production or use secrets
-  serviceType: ClusterIP
+  image:
+    registry: "docker.io"
+    repository: "jenkins/jenkins"
+    tag: "lts"
+  admin:
+    username: "admin"
+    password: "admin_password" # Change this in production or use secrets
+  serviceType: LoadBalancer
   installPlugins:
-    - kubernetes:4.1.0
-    - workflow-job:1346.v18214309a_162
-    - workflow-aggregator:596.v8c21c963d92d
-    - credentials-binding:642.v1789c6802167
-    - git:5.2.0
-    - docker-workflow:572.v950f58993843
+    - kubernetes
+    - workflow-job
+    - workflow-aggregator
+    - credentials-binding
+    - git
+    - docker-workflow
 persistence:
   enabled: true
   storageClass: "gp2" # Or gp3 if configured in your cluster
   size: "8Gi"
   accessMode: "ReadWriteOnce"
+agent:
+  enabled: true
 serviceAccount:
   create: true
   name: "jenkins"
